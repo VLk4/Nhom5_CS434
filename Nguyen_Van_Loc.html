@@ -1,0 +1,116 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Giỏ hàng</title>
+  <style>
+    body { 
+      font-family: sans-serif; 
+      padding: 20px; 
+      background-color: #f9f9f9;
+    }
+    h2 {
+      text-align: center;
+      color: #4CAF50;
+    }
+    input, button { 
+      padding: 8px; 
+      margin: 5px; 
+      border-radius: 4px; 
+      border: 1px solid #ccc;
+    }
+    input:focus, button:focus {
+      outline: none;
+      border-color: #4CAF50;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    table { 
+      width: 100%; 
+      margin-top: 20px; 
+      border-collapse: collapse; 
+      background-color: #fff;
+    }
+    th, td { 
+      border: 1px solid #ddd; 
+      padding: 10px; 
+      text-align: center; 
+      font-size: 16px;
+    }
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Quản lý Giỏ hàng</h2>
+
+  <form id="form">
+    <input name="name" placeholder="Tên sản phẩm" required />
+    <input name="qty" type="number" placeholder="Số lượng" required min="1" />
+    <input name="price" type="number" placeholder="Đơn giá" required min="0" />
+    <button type="submit">Thêm</button>
+  </form>
+
+  <table>
+    <thead>
+      <tr><th>Tên</th><th>Số lượng</th><th>Đơn giá</th><th>Thành tiền</th></tr>
+    </thead>
+    <tbody id="cart-body"></tbody>
+  </table>
+
+  <script>
+    async function loadCart() {
+      const res = await fetch('/cart');
+      const cart = await res.json();
+      const tbody = document.getElementById('cart-body');
+      tbody.innerHTML = '';
+      cart.forEach(p => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${p.name}</td>
+            <td>${p.qty}</td>
+            <td>${p.price}</td>
+            <td>${p.qty * p.price}</td>
+          </tr>
+        `;
+      });
+    }
+
+    document.getElementById('form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const data = {
+        name: form.name.value,
+        qty: Number(form.qty.value),
+        price: Number(form.price.value)
+      };
+      await fetch('/cart', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      });
+      form.reset();
+      loadCart();
+    });
+
+    loadCart();
+  </script>
+
+</body>
+</html>
